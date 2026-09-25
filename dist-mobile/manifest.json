@@ -1,0 +1,30 @@
+{
+  "id": "/",
+  "name": "厦大统一门户",
+  "short_name": "厦大入口",
+  "description": "厦门大学全校网站与小程序统一入口：按校区 / 对象 / 用途定位，或用一句话让本地检索帮你找",
+  "lang": "zh-CN",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#f4f7fb",
+  "theme_color": "#0d2f6e",
+  "categories": ["education", "productivity", "utilities"],
+  "prefer_related_applications": false,
+  "shortcuts": [
+    { "name": "查成绩", "short_name": "查成绩", "url": "./index.html#view=browse&q=%E6%88%90%E7%BB%A9" },
+    { "name": "宿舍报修", "short_name": "报修", "url": "./index.html#view=browse&q=%E6%8A%A5%E4%BF%AE" },
+    { "name": "场馆预约", "short_name": "预约", "url": "./index.html#view=browse&q=%E9%A2%84%E7%BA%A6" }
+  ],
+  "icons": [
+    { "src": "assets/logo/logo-128.png", "sizes": "128x128", "type": "image/png" },
+    { "src": "assets/logo/logo-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/logo/logo-256.png", "sizes": "256x256", "type": "image/png" },
+    { "src": "assets/logo/logo-384.png", "sizes": "384x384", "type": "image/png" },
+    { "src": "assets/logo/logo-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/logo/logo-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

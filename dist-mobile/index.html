@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<!-- maximum-scale / user-scalable：手机上禁止双指捏合与双击缩放。
+     注意 iOS Safari 从 iOS 10 起会忽略 user-scalable=no，所以还有 CSS 的
+     touch-action 与 JS 的 gesture 事件拦截两道兜底（见 app.js 的 lockZoom）。
+     桌面版不受影响：这两个属性只被移动浏览器解释，Ctrl +/- 照常可用。 -->
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>厦大统一门户 · 厦门大学信息学院</title>
+<link rel="icon" href="assets/logo/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" href="assets/logo/logo-128.png">
+<link rel="apple-touch-icon" href="assets/logo/logo-256.png">
+<meta name="theme-color" content="#0d2f6e">
+<meta name="description" content="厦门大学全校网站、系统与小程序统一入口：320 条按校区 / 对象 / 用途整理好，说一句大白话就能找到该去哪个网站办事。">
+<!-- 公开分享时的卡片（微信、QQ、群聊里发链接会读这几条） -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="厦大统一门户">
+<meta property="og:title" content="厦大统一门户 · 全校入口一次找齐">
+<meta property="og:description" content="320 条厦大网站与小程序入口，按校区 / 对象 / 用途分类，说一句「宿舍水管漏了」就能找到该去哪办。">
+<meta property="og:image" content="assets/logo/share-card.png">
+<meta property="og:image:width" content="600">
+<meta property="og:image:height" content="480">
+<meta name="twitter:card" content="summary_large_image">
+<!-- 用 .json 而不是 .webmanifest：很多静态托管（Netlify/Cloudflare/GitHub Pages）
+     不认识 .webmanifest，会回 application/octet-stream，浏览器就判定 manifest 无效、不给安装 -->
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="厦大入口">
+<link rel="stylesheet" href="styles.css">
+<script>
+  /* 尽早应用主题，避免首屏闪白 */
+  (function () {
+    try {
+      var saved = localStorage.getItem('xmuhub-theme');
+      if (saved === 'dark' || saved === 'light') {
+        document.documentElement.setAttribute('data-theme', saved);
+      } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    } catch (e) { /* 忽略隐私模式下的 localStorage 异常 */ }
+  })();
+</script>
+</head>
+<body>
+
+<header class="topbar">
+  <!-- 窄屏（手机）才显示：把左侧栏当抽屉拉出来 -->
+  <button id="sideToggle" class="side-toggle" aria-label="打开筛选与身份" aria-expanded="false"
+          title="筛选 / 身份 / 统计">
+    <span class="st-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span class="st-text">筛选</span>
+    <span class="st-dot" id="sideDot" hidden></span>
+  </button>
+
+  <div class="brand">
+    <img class="brand-emblem" src="assets/xmu-emblem.png" alt="厦门大学校徽" title="厦门大学">
+    <div class="brand-divider"></div>
+    <img class="brand-college" src="assets/informatics-emblem.png" alt="信息学院院徽" title="厦门大学信息学院">
+    <div class="brandtext">
+      <h1>厦大统一门户</h1>
+      <p>School of Informatics · XMU</p>
+    </div>
+  </div>
+
+  <div id="offlineBar" class="offline-bar" hidden>
+    ⚠️ 本地服务已断开（软件实例可能已退出）——请关闭窗口重新打开软件
+    <button type="button" class="btn ghost" data-act="reboot">重试</button>
+  </div>
+
+  <div class="searchwrap">
+    <span class="searchicon">&gt;_</span>
+    <input id="search" type="search" autocomplete="off"
+           placeholder="搜什么都行：成绩 / 报修 / 场馆预约 / 报销 / 进校预约 …">
+    <kbd>/</kbd>
+    <div class="searchhist" id="searchHist" hidden>
+      <div class="sh-head">
+        <span>搜索记录</span>
+        <button type="button" class="sh-clear" id="histClearTop">清空</button>
+      </div>
+      <div class="sh-list" id="histListTop"></div>
+    </div>
+  </div>
+
+  <div class="topactions">
+    <button id="installBtn" class="btn" hidden>📲 装到主屏</button>
+    <button id="themeBtn" class="icon-btn" title="切换浅色 / 深色主题">◐</button>
+    <button id="aiBtn" class="btn primary">✨ AI 找入口</button>
+    <button id="favBtn" class="btn">★ 收藏</button>
+  </div>
+</header>
+
+<main>
+  <div id="sideBackdrop" class="side-backdrop" hidden></div>
+  <aside class="sidebar" id="sidebar">
+    <!-- 手机上才有：抽屉头，带一个明确的关闭按钮（原来只能点遮罩关，不好发现） -->
+    <div class="side-head">
+      <b>筛选 · 身份 · 统计</b>
+      <button type="button" class="side-close" id="sideClose" aria-label="收起菜单">✕</button>
+    </div>
+
+    <nav class="sidenav">
+      <button id="navHome" class="navitem active">🏠 首页</button>
+      <button id="navBrowse" class="navitem">☰ 全部入口<span class="n" id="navCount">0</span></button>
+    </nav>
+
+    <div class="stats" id="stats"></div>
+
+    <div class="profile-card" id="profileCard">
+      <h2>我的身份 <button type="button" class="pc-edit" id="profileEdit">修改</button></h2>
+      <div class="pc-body" id="profileBody">正在读取…</div>
+      <p class="pc-hint">首次打开时会问一次，之后按这个身份优先排序（随时可改）。点条目会用系统浏览器打开。</p>
+    </div>
+
+    <div class="filterblock">
+      <h2>按用途</h2>
+      <div class="chips" id="fPurpose"></div>
+    </div>
+    <div class="filterblock">
+      <h2>按端</h2>
+      <div class="chips" id="fPlatform"></div>
+    </div>
+    <div class="filterblock">
+      <h2>按形态</h2>
+      <div class="chips" id="fKind"></div>
+    </div>
+
+    <div class="filterblock" id="recentBlock" hidden>
+      <h2>最近打开</h2>
+      <div class="minilist" id="recentList"></div>
+    </div>
+
+    <div class="filterblock" id="historyBlock" hidden>
+      <h2>搜索记录 <button type="button" class="hist-clear" id="histClear">清空</button></h2>
+      <div class="chips" id="historyList"></div>
+    </div>
+
+    <button id="resetBtn" class="btn ghost wide">重置全部筛选</button>
+
+    <div class="college-card">
+      <img src="assets/informatics-emblem.png" alt="信息学院院徽">
+      <div class="t">
+        <b>厦门大学信息学院</b>
+        数据取自官网，共 <span id="footTotal">0</span> 条入口
+      </div>
+    </div>
+
+    <p class="site-note" id="siteNote">
+      本站是<b>学生作品</b>，不是厦门大学官方产品；入口与说明整理自各单位官网公开信息，
+      若与官网不一致，以官网为准。数据最后整理时间见 <code>portal.json</code>。
+    </p>
+  </aside>
+
+  <section class="content">
+    <!-- 首页：默认展示，避免一打开就是几百张卡片 -->
+    <div id="home" class="home"></div>
+
+    <!-- 列表视图 -->
+    <div id="browse" hidden>
+      <div class="listbar">
+        <div id="listInfo">全部入口</div>
+        <div class="legend">
+          <span class="dot plat-pc"></span>电脑端
+          <span class="dot plat-mobile"></span>手机端
+          <span class="dot plat-both"></span>双端
+        </div>
+      </div>
+      <div id="loading" class="skeleton"><div></div><div></div><div></div><div></div><div></div><div></div></div>
+      <div id="list" class="grid"></div>
+      <div id="empty" class="empty" hidden>
+        <img class="empty-mark" src="assets/logo/logo-256-mark.png" alt="">
+        <div id="emptyBoot" hidden>
+          <p class="big" id="emptyBootTitle">没有连上本地服务</p>
+          <p id="emptyBootWhy">目录数据由本机后端提供，通常是因为这个窗口对应的实例已经退出（例如软件被重启过），
+             或者端口被占用。</p>
+          <p class="empty-tip" id="emptyBootHow">解决办法：关掉本窗口，重新双击「厦大统一门户-绿色版.exe」；或点下面的重试。</p>
+          <div class="empty-actions"><button class="btn primary" data-act="reboot">重试连接</button></div>
+        </div>
+        <div id="emptyNormal">
+          <p class="big">没有匹配的入口</p>
+          <p id="emptyHint">试试更口语的说法，或者按 <kbd>Ctrl K</kbd> 打开命令面板。</p>
+          <div class="empty-actions" id="emptyActions"></div>
+          <div class="empty-sugs" id="emptySugs"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- 详情抽屉 -->
+<div id="drawer" class="drawer" hidden>
+  <div class="drawer-bg" data-close></div>
+  <aside class="drawer-panel">
+    <header class="drawer-top">
+      <span class="drawer-top-label">入口详情</span>
+      <button class="close" data-close title="关闭（Esc）">✕</button>
+    </header>
+    <div id="drawerBody" class="drawer-scroll"></div>
+  </aside>
+</div>
+
+<!-- 命令面板 -->
+<div id="palette" class="palette" hidden>
+  <div class="palette-bg" data-palette-close></div>
+  <div class="palette-panel">
+    <div class="palette-input">
+      <span class="picon">&gt;_</span>
+      <input id="paletteInput" placeholder="搜索入口，回车打开…" autocomplete="off">
+      <kbd>Esc</kbd>
+      <button class="palette-close" data-palette-close title="关闭（Esc）">✕</button>
+    </div>
+    <div class="palette-list" id="paletteList"></div>
+    <div class="palette-foot">
+      <span>↑↓ 选择</span><span>Enter 打开</span><span>Esc 关闭</span>
+      <span id="paletteCount" style="margin-left:auto"></span>
+    </div>
+  </div>
+</div>
+
+<!-- AI 面板 -->
+<div id="aiPanel" class="aipanel" hidden>
+  <div class="ai-head">
+    <img src="assets/logo/logo-32.png" alt="">
+    <strong>AI 找入口</strong>
+    <span id="aiEngine" class="engine">本地检索</span>
+    <button class="engine-btn attention" id="aiKeyBtn" title="配置本机 AI：下载模型即可，永久免费、不需要 Key">
+      <span class="eb-icon">⚙</span><span class="eb-text" id="aiKeyBtnText">配置本机 AI</span>
+    </button>
+    <button class="close" id="aiClose">✕</button>
+  </div>
+
+  <div class="ai-keys" id="aiKeys" hidden>
+    <div class="ak-head">
+      <strong>本机 AI 设置</strong>
+      <span class="ak-hint">模型跑在你自己电脑上：不联网、不花钱、不用 Key</span>
+      <button class="close sm" id="aiKeysClose">✕</button>
+    </div>
+
+    <div class="ak-local" id="akLocal">
+      <div class="ak-local-head">
+        <strong>本机模型</strong>
+        <span class="ak-local-tag">永久免费 · 不需要 Key</span>
+        <button class="btn sm" id="akLocalRefresh">重新检测</button>
+      </div>
+      <div id="akLocalBody" class="ak-local-body">检测中…</div>
+      <div class="ak-progress" id="akProgress" hidden>
+        <div class="ak-bar"><i id="akBarFill"></i></div>
+        <div class="ak-progress-text" id="akProgressText"></div>
+      </div>
+    </div>
+    <div class="ak-verify" id="akVerify" hidden></div>
+    <div class="ak-note">
+      没装本机模型也能用：问答会自动走<b>本地检索</b>（财务处、后勤、教务等入口照样能答出来）。<br>
+      想让它在候选里再挑一遍并说明理由，就下载一个本机模型——一次下载，之后断网也能用。
+    </div>
+  </div>
+
+  <div class="ai-body" id="aiBody">
+    <div class="msg bot">
+      用大白话说需求就行，比如：<br>
+      「我是研究生，想在翔安找个能查成绩的地方」<br>
+      「宿舍水管漏了怎么办」<br>
+      「校友想进校看看要预约吗」
+    </div>
+  </div>
+  <div class="ai-input">
+    <input id="aiInput" placeholder="说说你要办的事…">
+    <button id="aiSend" class="btn primary">发送</button>
+  </div>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+
+<!-- 装到主屏的引导（安卓一键 / iOS 手动 / 微信里先跳到浏览器） -->
+<div id="installSheet" class="sheet" hidden>
+  <div class="sheet-bg" data-close="install"></div>
+  <div class="sheet-panel">
+    <div class="sheet-top">
+      <img src="assets/logo/logo-32.png" alt="" width="26" height="26">
+      <b>把「厦大统一门户」装到手机主屏</b>
+      <button class="close" data-close="install">✕</button>
+    </div>
+    <div class="sheet-body" id="installBody"></div>
+    <div class="sheet-actions">
+      <button class="btn primary" id="installGo" hidden>一键添加</button>
+      <button class="btn" id="installCopy">复制本页链接</button>
+      <button class="btn" data-close="install">知道了</button>
+    </div>
+  </div>
+</div>
+
+<!-- 首次打开时的询问：校区 + 身份（取代原来的两排筛选） -->
+<div id="onboard" class="onboard" hidden>
+  <div class="ob-bg"></div>
+  <div class="ob-panel">
+    <h2>先认识一下你 👋</h2>
+    <p class="ob-sub">只问这一次，之后打开就直接按你的情况排好序。随时能在左侧「我的身份」里改。</p>
+
+    <section class="ob-block">
+      <h3>你在哪个校区？</h3>
+      <div class="ob-choices" id="obCampus"></div>
+    </section>
+
+    <section class="ob-block">
+      <h3>你是？</h3>
+      <div class="ob-choices" id="obAudience"></div>
+    </section>
+
+    <div class="ob-actions">
+      <button class="btn primary" id="obDone">开始使用</button>
+      <button class="btn ghost" id="obSkip">先跳过，看全部</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

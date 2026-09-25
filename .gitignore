@@ -1,0 +1,57 @@
+# ============================================================
+# 厦大统一门户（XMU Hub）— Git 忽略规则
+# 原则：只提交「源码 + 数据 + 文档」，构建产物/工具链/大文件一律不进仓库
+# ============================================================
+
+# ---------- 超大二进制（851 MB，GitHub 单文件上限 100MB，必须排除）----------
+downloads/
+
+# ---------- PyInstaller 打包产物 ----------
+.build/
+dist/
+*.spec
+# 注意：dist-mobile/ 是 PWA 静态站点产物，体积小且是交付物，故意保留
+
+# ---------- 内置的第三方工具链与依赖（可重新下载，非本项目源码）----------
+.buildtools/
+.devtools/node_modules/
+.devtools/.npm-cache/
+
+# ---------- Python 缓存 ----------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# ---------- 运行时/临时调试日志（data/_*.txt 均为一次性输出）----------
+data/_*.txt
+data/userdata.json
+data/portal.json.bak
+*.log
+
+# ---------- 本地模型（体积大，由软件引导下载）----------
+data/models/
+*.gguf
+
+# ---------- 密钥与本地配置（绝不提交）----------
+.env
+.env.*
+*.key
+*.pem
+id_rsa*
+config.local.*
+secrets.json
+
+# ---------- 编辑器 / 系统 ----------
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+.DS_Store
+*.lnk
+
+# ---------- 临时文件 ----------
+*.tmp
+*.bak
+~$*
