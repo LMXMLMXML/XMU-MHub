@@ -75,13 +75,15 @@ jobs:
       # PYTHONIOENCODING 必须设：runner 上 Python 的 stdout 默认是 cp1252，
       # 打印中文会 UnicodeEncodeError 直接以退出码 1 结束（脚本里也有兜底，
       # 双保险）。第一次跑就是因为这个失败在"压缩为 zip"这一步。
+      # 资产名用中文：下载下来一眼就知道是什么、哪个版本。
+      # 仓库名是 XMU-MHub，但目标用户是中文使用者，文件名跟着用户习惯走。
       - name: 压缩为 zip
         shell: pwsh
         env:
           PYTHONIOENCODING: utf-8
         run: |
           $ver = "${{ github.ref_name }}"
-          $zip = "XMU-MHub-$ver-portable.zip"
+          $zip = "厦大统一门户-$ver.zip"
           python .github/make_release_zip.py "dist\厦大统一门户-绿色版" $zip
           if ($LASTEXITCODE -ne 0) { throw "压缩脚本退出码 $LASTEXITCODE" }
           if (-not (Test-Path $zip)) { throw "压缩失败，没生成 $zip" }
@@ -98,13 +100,20 @@ jobs:
           $ver = "${{ github.ref_name }}"
           # 单引号 here-string：内容原样保留，不做变量插值，避免 $ 被误展开
           $notes = @'
-          ## 下载哪个
+          ## 下载
 
-          下载下面的 **portable.zip** —— 免安装绿色版，解压后双击 `厦大统一门户-绿色版.exe` 即可运行。
+          点下面 Assets 里的 **`厦大统一门户-vX.Y.Z.zip`**（约 9 MB）。
+
+          **下载完三步就能用：**
+
+          1. 解压 zip（右键 → 全部解压缩）
+          2. 进解压出来的文件夹，双击 **`厦大统一门户-绿色版.exe`**
+          3. 首次运行若被 Windows 拦截，点「更多信息」→「仍要运行」
 
           - 无需安装 Python，无需管理员权限，不写注册表
           - 收藏 / 最近打开 / 搜索记录存在同目录 `data\userdata.json`，删掉整个文件夹就是卸载
           - 只支持 Windows，需要系统自带 Edge
+          - 被拦截的原因是 exe 没有代码签名证书（签名要花钱），不是文件有问题
 
           ## 手机端
 

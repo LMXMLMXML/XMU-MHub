@@ -7,11 +7,36 @@
 ![入口](https://img.shields.io/badge/入口目录-320%20条-0d2f6e)
 ![平台](https://img.shields.io/badge/Windows%20%7C%20PWA-%E5%8F%8C%E7%AB%AF-0c81bd)
 
+---
+
+## ⬇️ 下载 Windows 版（不需要装 Python）
+
+> ### 👉 [**点这里下载最新版**](https://github.com/LMXMLMXML/XMU-MHub/releases/latest)
+>
+> 打开后点 Assets 下面的 **`厦大统一门户-vX.Y.Z.zip`**（约 9 MB）。
+>
+> **下载完三步就能用：**
+>
+> 1. 解压 zip（右键 → 全部解压缩）
+> 2. 进解压出来的文件夹，双击 **`厦大统一门户-绿色版.exe`**
+> 3. 首次运行若被 Windows 拦截，点「更多信息」→「仍要运行」
+>
+> ✅ 免安装、不写注册表、不需要管理员权限
+> ✅ 收藏 / 最近打开 / 搜索记录存在同目录 `data\userdata.json`，删掉整个文件夹就是卸载
+> ⚠️ 被拦截的原因是 exe 没有代码签名证书（签名要花钱），不是文件有问题
+
+> **不想下载？手机/电脑都能直接开网页版** —— 见[手机端 / PWA](#手机端--pwa同一份前端静态托管就能用)。
+> 同一份前端、同一份数据，浏览器打开即用，不用装任何东西。
+
+---
+
+## 这个软件是什么
+
 一个把**厦门大学全校网站、系统与小程序按「校区 / 对象 / 用途」统一收口**的 Windows 桌面软件，
 同一份前端还能直接当公网网页 / 手机 App（PWA）用。
 
-> 📁 **只想 clone 下来跑一遍？** 看 [REPO_NOTES.md](REPO_NOTES.md)
-> —— 说明仓库里有什么、没有什么（exe / 安装包 / 工具链故意不进版本控制）、以及怎么补回来。
+> 📁 想自己从源码跑 / 重新打包？看 [REPO_NOTES.md](REPO_NOTES.md)
+> —— 说明仓库里有什么、没有什么（exe 走 Release 分发，不进版本控制）、以及怎么补回来。
 
 ## 解决什么问题
 
@@ -459,8 +484,8 @@ cd .devtools && node mobile_url_test.mjs     # 前端：桌面显示、手机不
 
 ### 方式 1：下载绿色版（推荐，普通用户看这里）
 
-**到 [Releases 页面](https://github.com/LMXMLMXML/XMU-MHub/releases/latest) 下载 `XMU-MHub-*-portable.zip`**，
-解压后双击里面的 `厦大统一门户-绿色版.exe` 即可运行。
+**到 [Releases 页面](https://github.com/LMXMLMXML/XMU-MHub/releases/latest) 下载 `厦大统一门户-vX.Y.Z.zip`**，
+解压后双击里面的 `厦大统一门户-绿色版.exe` 即可运行。（同上文开头的下载入口）
 
 - 不需要装 Python，不需要管理员权限，不写注册表
 - 收藏 / 最近打开 / 搜索记录存在同目录 `data\userdata.json`；删掉整个文件夹就是卸载
