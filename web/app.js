@@ -70,7 +70,10 @@ function uniqPush(list, value, max) {
 
 /* 静态版：按分数挑最相关的入口（与后端 /api/search 同一套打分与同义词扩展） */
 function localSearch(query, limit = 3) {
-  const terms = expandTerms(String(query || ''), tokenize(query));
+  // 同 visibleItems：有输入但切不出检索词时返回空，别当成"没有查询"倒出全部
+  const q = String(query || '');
+  if (q.trim() && !tokenize(q).length) return [];
+  const terms = expandTerms(q, searchTerms(q));
   const rows = [];
   for (const item of state.items) {
     const score = scoreItem(item, terms);
@@ -79,6 +82,12 @@ function localSearch(query, limit = 3) {
   }
   rows.sort((a, b) => {
     if (b.s !== a.s) return b.s - a.s;
+    // role=info（纯说明页/公告）降权只影响排序，不影响是否入选。
+    // 原先这个 -2.0 在 scoreItem 里，会被「s <= 0 就过滤」当成不相关剔掉——
+    // 例：「师资」只命中 desc（+2.0），再减 2.0 恰好等于 0，条目就消失了。
+    const ai = a.item.role === 'info' ? 1 : 0;
+    const bi = b.item.role === 'info' ? 1 : 0;
+    if (ai !== bi) return ai - bi;
     if (!!b.item.hot !== !!a.item.hot) return b.item.hot ? 1 : -1;
     return a.item.name.localeCompare(b.item.name, 'zh');
   });
@@ -292,14 +301,34 @@ function scoreItem(item, terms) {
   }
   // 检索加权用 hot（常用入口），跟首页"精选"那 7 个是两码事：
   // 精选一缩，这里的加分不能跟着少，否则搜索结果会凭空少掉一大截
-  if (item.hot) total += 1.2;
+  //
+  // 但必须放在「文本确实命中过」的条件里：否则任何 hot 条目对任何查询
+  // 都恒定得 1.2 分，而调用方的下限是 0，于是搜 "qqqqqq" 也会返回满屏
+  // 结果，"没有匹配的入口"永远显示不出来。
+  //
+  // role=info 的降权不在这里做，改到排序里（见 visibleItems / localSearch 的 sort）。
+  if (total > 0 && item.hot) total += 1.2;
   return total;
 }
 
 /* ------------------------------------------------ 筛选与渲染 */
 
+/* 检索用词：与后端 app.py 的 search_terms 一致——查询里有 2 字以上的词时丢掉单字。
+   单字命中太宽松："zzzz不存在的词zzzz" 里只有「存」是真命中，却能把
+   「云盘存储」「圈存机」全捞出来。2-gram 分词保证真实中文词至少有一个 2 字词，
+   所以丢掉单字不会漏召回；只有查询本身就是单字时才保留。 */
+function searchTerms(query) {
+  const terms = tokenize(query);
+  const multi = terms.filter((t) => t.length >= 2);
+  return multi.length ? multi : terms;
+}
+
 function visibleItems() {
-  const terms = expandTerms(state.query, tokenize(state.query));
+  // 输入里有内容、却切不出任何检索词（纯标点 "？？？"、纯停用词 "的的的"），
+  // 说明用户确实在搜、只是没有可用关键词。此时必须返回空列表，
+  // 不能落到下面「terms 为空 = 没传查询」那条分支去，否则会把整个目录倒出来。
+  if (state.query.trim() && !tokenize(state.query).length) return [];
+  const terms = expandTerms(state.query, searchTerms(state.query));
   const rows = [];
   for (const item of state.items) {
     if (state.onlyFav && !state.favorites.includes(item.id)) continue;
@@ -320,6 +349,10 @@ function visibleItems() {
   }
   rows.sort((a, b) => {
     if (b.s !== a.s) return b.s - a.s;
+    // 同 localSearch：role=info 降权只排序，不过滤
+    const ai = a.item.role === 'info' ? 1 : 0;
+    const bi = b.item.role === 'info' ? 1 : 0;
+    if (ai !== bi) return ai - bi;
     if (!!b.item.hot !== !!a.item.hot) return b.item.hot ? 1 : -1;
     return a.item.name.localeCompare(b.item.name, 'zh');
   });

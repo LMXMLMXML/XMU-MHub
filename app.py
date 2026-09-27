@@ -188,18 +188,39 @@ def score_item(item: dict, terms: list[str]) -> float:
             total += 1.0 * w
     # 检索加权：用 hot 而不是 featured —— 首页"精选"只放 7 个，但检索里常用入口
     # 该加的分不能跟着少（否则「报销」62→47 条、「游泳」31→13 条，见 build_data.HOT_URLS）
-    if item.get("hot"):
+    #
+    # 但必须放在「文本确实命中过」的条件里：否则任何 hot 条目对任何查询都恒定
+    # 得 1.2 分，而 search() 的下限 floor 默认 0.0，于是搜 "qqqqqq" 也会返回
+    # 满屏结果，"没有匹配的入口"这个空状态两端都永远走不到。
+    #
+    # role=info 的降权不在这里做，改到 search() 的排序键里（见那儿的说明）。
+    if total > 0 and item.get("hot"):
         total += 1.2
-    # 同分时优先"打开就能办事"的入口；纯说明页/公告明显降权（仍可搜到，但排在功能入口之后）
-    if item.get("role") == "info":
-        total -= 2.0
     return total
+
+
+def search_terms(query: str) -> list[str]:
+    """检索用词：查询里有 2 字以上的词时丢掉单字。
+
+    单字命中太宽松——"zzzz不存在的词zzzz" 里只有「存」是真命中，
+    却能把「云盘存储」「圈存机」「数字校园卡(圈存)」全捞出来。
+    而 2-gram 分词保证真实中文词至少有一个 2 字词，丢掉单字不会漏召回；
+    只有查询本身就是单字时（"书"）才保留，不然查不出东西。
+    """
+    terms = tokenize(query)
+    multi = [t for t in terms if len(t) >= 2]
+    return multi if multi else terms
 
 
 def search(catalog: Catalog, query: str, campus: str = "", audience: str = "",
            purpose: str = "", kind: str = "", platform: str = "", limit: int = 60,
            floor: float = 0.0) -> list[dict]:
-    terms = expand_query(query, tokenize(query))
+    # 输入里有内容、却切不出任何检索词（纯标点 "？？？"、纯停用词 "的的的"），
+    # 说明用户确实在搜、只是没有可用关键词。此时必须返回空结果，
+    # 不能落到下面「terms 为空 = 没传查询」那条分支去，否则会把整个目录倒出来。
+    if query.strip() and not tokenize(query):
+        return []
+    terms = expand_query(query, search_terms(query))
     results = []
     for item in catalog.items:
         if campus and campus not in item.get("campus", []) and "通用" not in item.get("campus", []):
@@ -219,7 +240,18 @@ def search(catalog: Catalog, query: str, campus: str = "", audience: str = "",
         specific = 1 if (campus and campus in item.get("campus", [])) else 0
         specific += 1 if (audience and audience in item.get("audience", [])) else 0
         results.append((s, specific, item))
-    results.sort(key=lambda row: (-row[0], -row[1], not row[2].get("hot"), row[2]["name"]))
+    # 排序键里的 role=info 降权：纯说明页/公告（role=info）排在"打开就能办事"的
+    # 功能入口之后，但仍然保留在结果里。
+    # 原先这个 -2.0 写在 score_item 里，会被 s <= floor 当成"不相关"直接剔掉——
+    # 例如「师资」只命中 desc（+2.0），再减 2.0 恰好等于 0，条目就消失了。
+    # 降权是排序意图，不该兼职做过滤。
+    results.sort(key=lambda row: (
+        -row[0],
+        row[2].get("role") == "info",
+        -row[1],
+        not row[2].get("hot"),
+        row[2]["name"],
+    ))
     return [item for _, _, item in results[:limit]]
 
 
