@@ -26,7 +26,7 @@
 ├── README.md                 # 项目主文档（功能 / 设计 / 踩坑 / 验证）
 ├── DEMO.md / DEMO.txt        # 演示脚本与演示流程
 ├── DEPLOY.md                 # 部署说明
-├── COVERAGE.md               # 316 条入口的收录覆盖与依据
+├── COVERAGE.md               # 320 条入口的收录覆盖与依据
 │
 ├── web/                      # ★ 前端源码（唯一真源）
 │   ├── index.html            #   单页骨架
@@ -38,7 +38,7 @@
 │       └── logo/DESIGN.md    #   自研 LOGO 的完整设计规范
 │
 ├── data/                     # ★ 数据
-│   ├── portal.json           #   316 条结构化目录（构建产物，前端直接消费）
+│   ├── portal.json           #   320 条结构化目录（构建产物，前端直接消费）
 │   └── link_status.json      #   逐条实测的链接存活状态
 │
 ├── tools/                    # ★ 构建与验证工具（53 个脚本）
@@ -115,13 +115,13 @@ python app.py --new      # 强制新实例（默认会复用已在运行的实�
 
 ## 5. 数据来源与准确性
 
-`data/portal.json` 的 316 条入口来自两份人工整理的总集
+`data/portal.json` 的 320 条入口来自两份人工整理的总集
 （《厦门大学网址总集》《厦门大学微信小程序总集》），并经过：
 
 1. `tools/build_data.py` 结构化 —— 打上校区 / 对象 / 用途 / 端 / 形态 / 关键词标签；
 2. `tools/audit_links.py` **逐条 GET 实测**，结果写进 `data/link_status.json`
    —— 确认失效的 21 条已删除，原因逐条记录；
-3. `tools/audit_descriptions.py` 检查简介覆盖 —— 316 条全部有简介，缺简介 0 条；
+3. `tools/audit_descriptions.py` 检查简介覆盖 —— 320 条全部有简介，缺简介 0 条；
 4. `tools/audit_classify.py` 复核分类。
 
 完整覆盖依据见 [COVERAGE.md](COVERAGE.md)，验证记录见 README「验证记录」一节。
