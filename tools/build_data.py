@@ -1,11 +1,13 @@
 """把两份《总集》Markdown 转成门户软件使用的结构化目录数据。
 
-输入：
-    D:\\AI\\厦门大学网址总集.md
-    D:\\AI\\厦门大学微信小程序总集.md
+输入（优先仓库根目录，其次仓库上一级）：
+    厦门大学网址总集.md
+    厦门大学微信小程序总集.md
 输出：
-    D:\\AI\\xmu_hub\\data\\portal.json
-    D:\\AI\\xmu_hub\\data\\_stats.txt
+    <仓库根>/data/portal.json
+    <仓库根>/data/_stats.txt
+
+注意：源文档没有进版本库，clone 下来后需要自己放到上面任一位置。
 """
 
 from __future__ import annotations
@@ -15,10 +17,33 @@ import re
 import unicodedata
 from pathlib import Path
 
-ROOT = Path(r"D:\AI")
-OUT_DIR = ROOT / "xmu_hub" / "data"
-URL_DOC = ROOT / "厦门大学网址总集.md"
-MP_DOC = ROOT / "厦门大学微信小程序总集.md"
+ROOT = Path(__file__).resolve().parent.parent   # 仓库根目录，随 clone 位置自适应
+OUT_DIR = ROOT / "data"
+
+
+def _find_doc(name: str) -> Path:
+    """源总集的位置：先看仓库根目录，再沿父目录逐级往上找。
+
+    这两份《总集》是本机工作区的原始资料，没有进版本库，位置也不固定
+    （历史上仓库和工作区根不在同一层），所以不能写死。
+    """
+    seen: list[Path] = []
+    for base in (ROOT, *ROOT.parents):
+        cand = base / name
+        seen.append(cand)
+        if cand.exists():
+            return cand
+    print(f"[错误] 找不到源文档 {name}")
+    print("        已找过：")
+    for c in seen[:6]:
+        print(f"          {c}")
+    print("        这两份《总集》没有进版本库，需要你自己提供后放在仓库根目录")
+    print("        或它的任一级父目录下。内容格式见 README「数据来源」。")
+    raise SystemExit(1)
+
+
+URL_DOC = _find_doc("厦门大学网址总集.md")
+MP_DOC = _find_doc("厦门大学微信小程序总集.md")
 LINK_STATUS_FILE = OUT_DIR / "link_status.json"
 
 
@@ -1117,7 +1142,7 @@ def main() -> None:
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     (OUT_DIR / "portal.json").write_text(
-        json.dumps({"generatedFrom": [str(URL_DOC), str(MP_DOC)], "items": merged},
+        json.dumps({"generatedFrom": [URL_DOC.name, MP_DOC.name], "items": merged},
                    ensure_ascii=False, indent=1),
         encoding="utf-8",
     )
