@@ -71,13 +71,22 @@ jobs:
       #     中文 exe 名会变乱码
       #   - zipfile 默认对非 ASCII 名置 UTF-8 标志位（bit 11），解压端能正确还原
       # 脚本本身会自检这个标志位，所以解压乱码这类问题不会悄悄溜过去。
+      #
+      # PYTHONIOENCODING 必须设：runner 上 Python 的 stdout 默认是 cp1252，
+      # 打印中文会 UnicodeEncodeError 直接以退出码 1 结束（脚本里也有兜底，
+      # 双保险）。第一次跑就是因为这个失败在"压缩为 zip"这一步。
       - name: 压缩为 zip
         shell: pwsh
+        env:
+          PYTHONIOENCODING: utf-8
         run: |
           $ver = "${{ github.ref_name }}"
           $zip = "XMU-MHub-$ver-portable.zip"
           python .github/make_release_zip.py "dist\厦大统一门户-绿色版" $zip
+          if ($LASTEXITCODE -ne 0) { throw "压缩脚本退出码 $LASTEXITCODE" }
           if (-not (Test-Path $zip)) { throw "压缩失败，没生成 $zip" }
+          $mb = [math]::Round((Get-Item $zip).Length / 1MB, 1)
+          Write-Host "zip: $zip ($mb MB)"
           "ZIP_NAME=$zip" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
       # 用 runner 自带的 gh CLI 发布，避免再引入一个第三方 Action
