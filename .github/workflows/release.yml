@@ -75,20 +75,27 @@ jobs:
       # PYTHONIOENCODING 必须设：runner 上 Python 的 stdout 默认是 cp1252，
       # 打印中文会 UnicodeEncodeError 直接以退出码 1 结束（脚本里也有兜底，
       # 双保险）。第一次跑就是因为这个失败在"压缩为 zip"这一步。
-      # 资产名用中文：下载下来一眼就知道是什么、哪个版本。
-      # 仓库名是 XMU-MHub，但目标用户是中文使用者，文件名跟着用户习惯走。
+      # 资产名只用 ASCII。
+      # 试过中文名（厦大统一门户-v1.0.1.zip）：python 侧创建成功，但 gh 上传时
+      # 中文被吃掉，资产变成 "-v1.0.1.zip"，下载链接直接坏掉。
+      # GitHub 对 asset 名本来就有字符集限制，Windows runner 的控制台编码又是
+      # 一层不确定，所以文件名朴素一点没关系，能下就行 —— 中文说明放在
+      # Release 正文和 README 里。
       - name: 压缩为 zip
         shell: pwsh
         env:
           PYTHONIOENCODING: utf-8
         run: |
           $ver = "${{ github.ref_name }}"
-          $zip = "厦大统一门户-$ver.zip"
+          $zip = "XMU-Hub-$ver-windows.zip"
           python .github/make_release_zip.py "dist\厦大统一门户-绿色版" $zip
           if ($LASTEXITCODE -ne 0) { throw "压缩脚本退出码 $LASTEXITCODE" }
           if (-not (Test-Path $zip)) { throw "压缩失败，没生成 $zip" }
           $mb = [math]::Round((Get-Item $zip).Length / 1MB, 1)
           Write-Host "zip: $zip ($mb MB)"
+          # 断言文件名必须与预期完全一致，防止再出现被静默改写的情况
+          $leaf = (Get-Item $zip).Name
+          if ($leaf -ne $zip) { throw "压缩产物文件名不是 ASCII，得到 '$leaf'" }
           "ZIP_NAME=$zip" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
       # 用 runner 自带的 gh CLI 发布，避免再引入一个第三方 Action
@@ -102,7 +109,7 @@ jobs:
           $notes = @'
           ## 下载
 
-          点下面 Assets 里的 **`厦大统一门户-vX.Y.Z.zip`**（约 9 MB）。
+          点下面 Assets 里的 **`XMU-Hub-vX.Y.Z-windows.zip`**（约 9 MB，Windows 免安装绿色版）。
 
           **下载完三步就能用：**
 

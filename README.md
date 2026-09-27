@@ -13,7 +13,7 @@
 
 > ### 👉 [**点这里下载最新版**](https://github.com/LMXMLMXML/XMU-MHub/releases/latest)
 >
-> 打开后点 Assets 下面的 **`厦大统一门户-vX.Y.Z.zip`**（约 9 MB）。
+> 打开后点 Assets 下面的 **`XMU-Hub-vX.Y.Z-windows.zip`**（约 9 MB）。
 >
 > **下载完三步就能用：**
 >
@@ -484,7 +484,7 @@ cd .devtools && node mobile_url_test.mjs     # 前端：桌面显示、手机不
 
 ### 方式 1：下载绿色版（推荐，普通用户看这里）
 
-**到 [Releases 页面](https://github.com/LMXMLMXML/XMU-MHub/releases/latest) 下载 `厦大统一门户-vX.Y.Z.zip`**，
+**到 [Releases 页面](https://github.com/LMXMLMXML/XMU-MHub/releases/latest) 下载 `XMU-Hub-vX.Y.Z-windows.zip`**，
 解压后双击里面的 `厦大统一门户-绿色版.exe` 即可运行。（同上文开头的下载入口）
 
 - 不需要装 Python，不需要管理员权限，不写注册表

@@ -79,7 +79,7 @@
 
 ### 想要能直接双击运行的 exe，而不是源码
 
-**到 [Releases 页面](https://github.com/LMXMLMXML/XMU-MHub/releases/latest) 下载 `厦大统一门户-vX.Y.Z.zip`**，
+**到 [Releases 页面](https://github.com/LMXMLMXML/XMU-MHub/releases/latest) 下载 `XMU-Hub-vX.Y.Z-windows.zip`**，
 解压双击即可，不需要装 Python。
 
 仓库里没有 exe 是**有意的**：二进制一旦提交进 git，会永久留在历史里（即使后来删掉，
