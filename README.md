@@ -501,33 +501,57 @@ python app.py --no-window  :: 只启动服务并打印地址
 
 ### 方式 4：自己重新打包（产物在 `dist\`）
 
-打包工具 PyInstaller 只用于构建，**运行时不依赖它**；本机没有全局 PyInstaller，按下面的方式装到工作区内即可（不需要管理员权限）：
+打包工具 PyInstaller 只用于构建，**运行时不依赖它**；仓库里没有全局 PyInstaller，按下面的方式装到工作区内即可（不需要管理员权限）。
+
+**先在仓库根目录打开终端**（就是有 `app.py` 的那一层），然后：
+
+**PowerShell：**
+
+```powershell
+python -m pip install --target "$PWD\.buildtools" pyinstaller
+$env:PYTHONPATH = "$PWD\.buildtools"
+
+# 绿色版（onedir，推荐交付）
+python -m PyInstaller --noconfirm --clean --windowed --onedir `
+  --icon "$PWD\web\assets\logo\app.ico" --name "厦大统一门户-绿色版" `
+  --workpath "$PWD\.build\work2" --specpath "$PWD\.build" --distpath "$PWD\dist" `
+  --add-data "$PWD\web;web" --add-data "$PWD\data;data" "$PWD\app.py"
+```
+
+**cmd.exe：**
 
 ```bat
-python -m pip install --target D:\AI\xmu_hub\.buildtools pyinstaller
-set PYTHONPATH=D:\AI\xmu_hub\.buildtools
+python -m pip install --target "%CD%\.buildtools" pyinstaller
+set PYTHONPATH=%CD%\.buildtools
 
 :: 绿色版（onedir，推荐交付）
 python -m PyInstaller --noconfirm --clean --windowed --onedir ^
-  --icon D:\AI\xmu_hub\web\assets\logo\app.ico --name "厦大统一门户-绿色版" ^
-  --workpath D:\AI\xmu_hub\.build\work2 --specpath D:\AI\xmu_hub\.build --distpath D:\AI\xmu_hub\dist ^
-  --add-data "D:\AI\xmu_hub\web;web" --add-data "D:\AI\xmu_hub\data;data" D:\AI\xmu_hub\app.py
+  --icon "%CD%\web\assets\logo\app.ico" --name "厦大统一门户-绿色版" ^
+  --workpath "%CD%\.build\work2" --specpath "%CD%\.build" --distpath "%CD%\dist" ^
+  --add-data "%CD%\web;web" --add-data "%CD%\data;data" "%CD%\app.py"
 
-:: 单文件版
+:: 单文件版（体积小，但要自解压到临时目录，杀毒误报率更高）
 python -m PyInstaller --noconfirm --clean --windowed --onefile ^
-  --icon D:\AI\xmu_hub\web\assets\logo\app.ico --name "厦大统一门户" ^
-  --workpath D:\AI\xmu_hub\.build\work --specpath D:\AI\xmu_hub\.build --distpath D:\AI\xmu_hub\dist ^
-  --add-data "D:\AI\xmu_hub\web;web" --add-data "D:\AI\xmu_hub\data;data" D:\AI\xmu_hub\app.py
+  --icon "%CD%\web\assets\logo\app.ico" --name "厦大统一门户" ^
+  --workpath "%CD%\.build\work" --specpath "%CD%\.build" --distpath "%CD%\dist" ^
+  --add-data "%CD%\web;web" --add-data "%CD%\data;data" "%CD%\app.py"
 ```
 
+> 用 `$PWD` / `%CD%` 而不是写死的绝对路径：这个仓库以前在 `D:\AI\xmu_hub\`，
+> 换到 `OH二面\vibe coding\` 之后，写死的路径整段失效。
+> `tools/` 下还有一批脚本残留了同样的硬编码路径，见文末「已知问题」。
+>
 > 注意：`--add-data` 一定要写**绝对路径**——用了 `--specpath` 之后相对路径会按 spec 文件所在目录解析，会报 `Unable to find ...\web`。
 > `--icon` 指向 `web\assets\logo\app.ico`：这是 Windows 应用程序图标（Explorer / 任务栏 / Alt-Tab 显示的那枚），
 > 由 `tools\make_logo.py` 手写 ICO 容器生成，**每个尺寸用各自的图形**（16/24/32 用简化版，48 以上用完整版），
-> 不是把大图缩小。打包前记得先关掉正在运行的 exe，否则会 `PermissionError: [WinError 5]`。
-> 打包前先关掉正在运行的旧 exe（否则 `dist` 里的文件被占用，无法覆盖）。
+> 不是把大图缩小。
+> 打包前记得先关掉正在运行的 exe，否则会 `PermissionError: [WinError 5]`（`dist` 里的文件被占用，无法覆盖）。
 > **重新打包会整目录重建 `dist\厦大统一门户-绿色版\`**，而这个目录里的 `data\` 正是绿色版的用户数据
 > （收藏 / 最近打开 / 搜索记录）——绿色版用户重新打包前请先备份 `dist\厦大统一门户-绿色版\data\userdata.json`；
 > 单文件版的数据在 `dist\data\userdata.json`，不受影响。
+
+> **自己打包只是为了改动后验证**。对外发布不用手动打——推一个 `v*` tag，
+> GitHub Actions 会自动构建绿色版并挂到 Release 上，见「方式 1」。
 
 ## AI 引擎说明
 
