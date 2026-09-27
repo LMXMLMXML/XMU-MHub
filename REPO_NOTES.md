@@ -66,7 +66,7 @@
 | 未收录 | 体积 | 为什么 | 怎么补 |
 |---|---|---|---|
 | `downloads/OllamaSetup.exe` | 851 MB | 超过 GitHub 单文件上限，且是第三方安装包 | 从 [ollama.com](https://ollama.com) 官方下载 |
-| `dist/`（含 exe、绿色版） | 28 MB | 构建产物，可重现 | `python tools/build_data.py` → PyInstaller 打包，见 README「自己重新打包」 |
+| `dist/`（含 exe、绿色版） | 28 MB | 构建产物，可重现；二进制进 git 历史后无法真正删掉 | **直接下载**见下；自己打包见 README「自己重新打包」 |
 | `.build/` | PyInstaller 中间产物 | 纯缓存 | 打包时自动生成 |
 | `.buildtools/` | 28.6 MB | PyInstaller 工具链，非本项目源码 | 打包脚本会自动装到工作区内（无需管理员权限） |
 | `.devtools/node_modules/`、`.npm-cache/` | 27 MB | npm 依赖，可 `npm i` 重装 | `cd .devtools && npm install` |
@@ -76,6 +76,25 @@
 
 **只想要源码**：clone 下来 `python app.py` 即可运行，不需要补任何东西
 （零第三方依赖，见下节）。
+
+### 想要能直接双击运行的 exe，而不是源码
+
+**到 [Releases 页面](https://github.com/LMXMLMXML/XMU-MHub/releases/latest) 下载 `XMU-MHub-*-portable.zip`**，
+解压双击即可，不需要装 Python。
+
+仓库里没有 exe 是**有意的**：二进制一旦提交进 git，会永久留在历史里（即使后来删掉，
+clone 时仍要拖下来），所以打包产物走 Release 分发，不占仓库体积。
+
+Release 由 `.github/workflows/release.yml` 自动构建——打一个 `v*` 的 tag 并推送，
+GitHub 就会重新打包绿色版并挂上去：
+
+```bat
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+> 只发布**绿色版**（onedir）。单文件版（onefile）体积更小，但需要自解压到临时目录，
+> 被杀毒软件误报的概率明显更高，所以不随 Release 发布。
 
 ---
 

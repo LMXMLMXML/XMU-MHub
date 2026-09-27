@@ -457,24 +457,37 @@ cd .devtools && node mobile_url_test.mjs     # 前端：桌面显示、手机不
 
 ## 运行方式（任选其一）
 
-### 方式 1：绿色版（推荐，已实测）
+### 方式 1：下载绿色版（推荐，普通用户看这里）
+
+**到 [Releases 页面](https://github.com/LMXMLMXML/XMU-MHub/releases/latest) 下载 `XMU-MHub-*-portable.zip`**，
+解压后双击里面的 `厦大统一门户-绿色版.exe` 即可运行。
+
+- 不需要装 Python，不需要管理员权限，不写注册表
+- 收藏 / 最近打开 / 搜索记录存在同目录 `data\userdata.json`；删掉整个文件夹就是卸载
+- 首次运行若被 Windows SmartScreen 拦下，点「更多信息」→「仍要运行」（原因是 exe 没有代码签名证书，不是文件有问题）
+
+> 绿色版的打包产物**不进版本库**（28 MB 的二进制会永久留在 git 历史里），
+> 而是由 `.github/workflows/release.yml` 在打 tag 时自动构建并挂到 Release 上。
+> 维护者发布新版本：
+>
+> ```bat
+> git tag v1.0.0
+> git push origin v1.0.0
+> ```
+>
+> 几十秒后 Release 会自动出现，附带上面的 zip。
+
+### 方式 2：手机 / 平板（PWA，不用装任何东西）
 
 ```
-dist\厦大统一门户-绿色版\厦大统一门户-绿色版.exe
+python tools/build_mobile.py     # 生成 dist-mobile/
+python tools/preview_mobile.py   # 手机连同一 WiFi，打开提示的 http://<电脑IP>:8080/
 ```
 
-双击即用，无需安装 Python，不写注册表；收藏数据存在同目录 `data\userdata.json`。
+正式用就把 `dist-mobile/` 传到任意静态空间（建议 https），手机打开后「添加到主屏幕」，
+之后点主屏图标就能像 App 一样全屏打开、断网也能翻目录。详见「手机端 / PWA」一节。
 
-### 方式 2：单文件 exe
-
-```
-dist\厦大统一门户.exe
-```
-
-单文件、免解压目录，首次启动会自解压到临时目录（比绿色版慢几秒）。
-> 注意：若杀毒软件拦截自解压，请改用绿色版。
-
-### 方式 3：源码运行
+### 方式 3：源码运行（需要 Python 3.10+）
 
 双击 `启动.bat`（或 `启动-无控制台.bat`），或命令行：
 
@@ -486,17 +499,7 @@ python app.py --no-window  :: 只启动服务并打印地址
 
 **环境要求**：Python 3.10+（仅用标准库，无需 pip 安装任何东西）+ Windows 自带 Edge。
 
-### 方式 4：手机 / 平板（PWA，不用装任何东西）
-
-```
-python tools/build_mobile.py     # 生成 dist-mobile/
-python tools/preview_mobile.py   # 手机连同一 WiFi，打开提示的 http://<电脑IP>:8080/
-```
-
-正式用就把 `dist-mobile/` 传到任意静态空间（建议 https），手机打开后「添加到主屏幕」，
-之后点主屏图标就能像 App 一样全屏打开、断网也能翻目录。详见「手机端 / PWA」一节。
-
-### 方式 5：自己重新打包（产物在 `dist\`）
+### 方式 4：自己重新打包（产物在 `dist\`）
 
 打包工具 PyInstaller 只用于构建，**运行时不依赖它**；本机没有全局 PyInstaller，按下面的方式装到工作区内即可（不需要管理员权限）：
 
