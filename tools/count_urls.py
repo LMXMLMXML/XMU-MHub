@@ -8,7 +8,23 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-DOC = Path(r"D:\AI\厦门大学网址总集.md")
+
+# --- 仓库根目录，随 clone 位置自适应（原来这里写死了 D:\AI\xmu_hub）---
+ROOT = Path(__file__).resolve().parent.parent
+
+
+def _find_doc(name: str) -> Path:
+    """源《总集》不在仓库里，位置不固定，沿父目录逐级向上找。"""
+    for base in (ROOT, *ROOT.parents):
+        cand = base / name
+        if cand.exists():
+            return cand
+    raise SystemExit(
+        f"[错误] 找不到源文档 {name}；请放在仓库根目录或它的任一级父目录下"
+    )
+
+
+DOC = _find_doc("厦门大学网址总集.md")
 PATTERN = re.compile(r"https?://[^\s|)）】\]]+")
 
 

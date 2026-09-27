@@ -13,9 +13,22 @@ import re
 import sys
 from pathlib import Path
 
-ROOT = Path(r"D:\AI")
-DOCS = [ROOT / "厦门大学网址总集.md", ROOT / "厦门大学微信小程序总集.md"]
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+# --- 仓库根目录，随 clone 位置自适应（原来这里写死了 D:\AI\xmu_hub）---
+ROOT = Path(__file__).resolve().parent.parent
+
+# 两份《总集》不在仓库里，位置也不固定，沿父目录逐级向上找
+def _find_doc(name: str) -> Path:
+    for base in (ROOT, *ROOT.parents):
+        cand = base / name
+        if cand.exists():
+            return cand
+    raise SystemExit(
+        f"[错误] 找不到源文档 {name}；请放在仓库根目录或它的任一级父目录下"
+    )
+
+
+DOCS = [_find_doc("厦门大学网址总集.md"), _find_doc("厦门大学微信小程序总集.md")]
+sys.path.insert(0, str(ROOT / "tools"))
 import build_data  # noqa: E402
 
 TARGETS = set(build_data.REMOVED_ENTRIES)

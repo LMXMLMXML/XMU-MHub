@@ -9,7 +9,11 @@ import json
 import urllib.request
 from pathlib import Path
 
-PF = Path(r"D:\AI\xmu_hub\dist\厦大统一门户-绿色版\data\_runtime_port.txt")
+# --- 仓库根目录，随 clone 位置自适应（原来这里写死了 D:\AI\xmu_hub）---
+ROOT = Path(__file__).resolve().parent.parent
+
+
+PF = ROOT / "dist" / "厦大统一门户-绿色版" / "data" / "_runtime_port.txt"
 
 
 def main() -> None:

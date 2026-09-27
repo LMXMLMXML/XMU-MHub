@@ -8,10 +8,15 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+
+# --- 仓库根目录，随 clone 位置自适应（原来这里写死了 D:\AI\xmu_hub）---
+ROOT = Path(__file__).resolve().parent.parent
+
+
 CANDIDATES = [
-    Path(r"D:\AI\xmu_hub\data\userdata.json"),
-    Path(r"D:\AI\xmu_hub\dist\data\userdata.json"),
-    Path(r"D:\AI\xmu_hub\dist\厦大统一门户-绿色版\data\userdata.json"),
+    ROOT / "data" / "userdata.json",
+    ROOT / "dist" / "data" / "userdata.json",
+    ROOT / "dist" / "厦大统一门户-绿色版" / "data" / "userdata.json",
 ]
 
 

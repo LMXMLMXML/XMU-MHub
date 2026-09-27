@@ -1,11 +1,16 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, r"D:\AI\xmu_hub")
+# --- 仓库根目录，随 clone 位置自适应（原来这里写死了 D:\AI\xmu_hub）---
+ROOT = Path(__file__).resolve().parent.parent
+
+
+sys.path.insert(0, str(ROOT))
 import app as portal  # noqa: E402
 
+
 cat = portal.Catalog()
-OUT = Path(r"D:\AI\xmu_hub\data\_debug.txt")
+OUT = ROOT / "data" / "_debug.txt"
 lines = []
 
 queries = sys.argv[1:] or ["报销", "查重", "饭卡"]

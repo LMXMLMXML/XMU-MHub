@@ -5,8 +5,12 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-DATA = Path(r"D:\AI\xmu_hub\data\portal.json")
-OUT = Path(r"D:\AI\xmu_hub\data\_verify_new.txt")
+# --- 仓库根目录，随 clone 位置自适应（原来这里写死了 D:\AI\xmu_hub）---
+ROOT = Path(__file__).resolve().parent.parent
+
+
+DATA = ROOT / "data" / "portal.json"
+OUT = ROOT / "data" / "_verify_new.txt"
 
 items = json.loads(DATA.read_text(encoding="utf-8"))["items"]
 by_name = {i["name"]: i for i in items}

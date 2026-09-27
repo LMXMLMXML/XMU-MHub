@@ -7,7 +7,11 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-PORT_FILE = Path(r"D:\AI\xmu_hub\data\_runtime_port.txt")
+# --- 仓库根目录，随 clone 位置自适应（原来这里写死了 D:\AI\xmu_hub）---
+ROOT = Path(__file__).resolve().parent.parent
+
+
+PORT_FILE = ROOT / "data" / "_runtime_port.txt"
 
 
 def _runtime_port() -> int:
@@ -19,8 +23,8 @@ def _runtime_port() -> int:
 
 
 BASE = "http://127.0.0.1:" + str(_runtime_port())
-WEB = Path(r"D:\AI\xmu_hub\web")
-OUT = Path(r"D:\AI\xmu_hub\data\_ui_check.txt")
+WEB = ROOT / "web"
+OUT = ROOT / "data" / "_ui_check.txt"
 lines: list[str] = []
 
 # 1. 静态资源
@@ -39,6 +43,7 @@ for name in ("index.html", "styles.css", "app.js"):
 html = (WEB / "index.html").read_text(encoding="utf-8")
 js = (WEB / "app.js").read_text(encoding="utf-8")
 import re
+
 
 ids_used = set(re.findall(r"""\$\('#([A-Za-z0-9_-]+)'\)""", js))
 ids_defined = set(re.findall(r'id="([A-Za-z0-9_-]+)"', html))

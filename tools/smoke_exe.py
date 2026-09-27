@@ -11,13 +11,18 @@ import sys
 import urllib.request
 from pathlib import Path
 
+
 for _s in (sys.stdout, sys.stderr):
     try:
         _s.reconfigure(encoding="utf-8", errors="replace")   # 控制台默认 GBK，✔/✘ 会炸
     except Exception:
         pass
 
-EXE_DIR = Path(r"D:\AI\xmu_hub\dist\厦大统一门户-绿色版")
+# --- 仓库根目录，随 clone 位置自适应（原来这里写死了 D:\AI\xmu_hub）---
+ROOT = Path(__file__).resolve().parent.parent
+
+
+EXE_DIR = ROOT / "dist" / "厦大统一门户-绿色版"
 PORT_FILE = EXE_DIR / "data" / "_runtime_port.txt"
 
 

@@ -11,11 +11,18 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-sys.path.insert(0, r"D:\AI\.pylibs")
+sys.path.insert(0, str(_WORKSPACE / ".pylibs"))
 from PIL import Image, ImageOps  # noqa: E402
 
-ASSETS = Path(r"D:\AI\xmu_hub\web\assets")
-OUT = Path(r"D:\AI\xmu_hub\data\_assets_processed.txt")
+# --- 仓库根目录，随 clone 位置自适应（原来这里写死了 D:\AI\xmu_hub）---
+ROOT = Path(__file__).resolve().parent.parent
+
+# 工作区根（仓库外的东西：本地依赖库等）
+_WORKSPACE = ROOT.parent
+
+
+ASSETS = ROOT / "web" / "assets"
+OUT = ROOT / "data" / "_assets_processed.txt"
 lines: list[str] = []
 
 

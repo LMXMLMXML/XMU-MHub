@@ -15,10 +15,15 @@ import sys
 import urllib.error
 from pathlib import Path
 
-sys.path.insert(0, r"D:\AI\xmu_hub")
+# --- 仓库根目录，随 clone 位置自适应（原来这里写死了 D:\AI\xmu_hub）---
+ROOT = Path(__file__).resolve().parent.parent
+
+
+sys.path.insert(0, str(ROOT))
 import app as portal  # noqa: E402
 
-OUT = Path(r"D:\AI\xmu_hub\data\_deepseek_check.txt")
+
+OUT = ROOT / "data" / "_deepseek_check.txt"
 lines: list[str] = []
 cat = portal.Catalog()
 question = "我是研究生，成绩在哪里查"

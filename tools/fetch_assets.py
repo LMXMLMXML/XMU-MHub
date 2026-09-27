@@ -7,9 +7,13 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-OUT = Path(r"D:\AI\xmu_hub\web\assets")
+# --- 仓库根目录，随 clone 位置自适应（原来这里写死了 D:\AI\xmu_hub）---
+ROOT = Path(__file__).resolve().parent.parent
+
+
+OUT = ROOT / "web" / "assets"
 OUT.mkdir(parents=True, exist_ok=True)
-REPORT = Path(r"D:\AI\xmu_hub\data\_assets.txt")
+REPORT = ROOT / "data" / "_assets.txt"
 
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/124.0 Safari/537.36")

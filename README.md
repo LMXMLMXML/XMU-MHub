@@ -790,8 +790,7 @@ XMU-MHub/                 （根目录名随 clone 位置变化，下面按仓�
 8. **手机版没有云端 AI**：手机上跑不了几 GB 的本机模型，问答就是浏览器里的本地检索（不联网、不用 Key）。要做更强的 AI 得自建一个中转藏 Key，或让用户自带 Key。
 9. **AI 建议仅供参考**：模型只在已收录条目中挑选，不会编造入口；但仍建议以官网为准。
 10. 单文件 exe 在部分杀毒软件下会被误报（PyInstaller 常见现象），且本机沙箱内无法完整验证其自解压过程，**建议优先使用绿色版**。
-11. **`tools/` 下一批开发脚本残留了旧的硬编码路径**（`D:\AI\xmu_hub\`，仓库搬到 `OH二面\vibe coding\` 之前的位置）。
-    这些脚本在别的机器上会因找不到路径而失败，其中几个是 README 里让你跑的：
-    `build_data.py`、`fetch_assets.py`、`process_assets.py`、`audit_coverage.py`。
-    **发布版不受影响**（`app.py`、`web/`、`data/` 全部干净），只有开发工具链受影响。
-    修法是把 `Path(r"D:\AI\xmu_hub")` 之类换成 `Path(__file__).resolve().parent.parent`（随仓库位置自适应），尚未做。
+11. **`tools/` 下的脚本依赖仓库外的两份《总集》**：`build_data.py`、`count_urls.py`、`prune_catalog.py`
+    需要《厦门大学网址总集.md》《厦门大学微信小程序总集.md》才能工作，而这两份**没有进版本库**。
+    脚本会沿仓库的父目录逐级向上找，找不到时会打印找过哪些路径并退出（不会抛看不懂的异常）。
+    其余 `tools/` 脚本均已改为按仓库位置自适应（`Path(__file__).resolve().parent.parent`），clone 到哪里都能跑。

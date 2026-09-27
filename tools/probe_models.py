@@ -8,7 +8,11 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-OUT = Path(r"D:\AI\xmu_hub\data\_model_probe.txt")
+# --- 仓库根目录，随 clone 位置自适应（原来这里写死了 D:\AI\xmu_hub）---
+ROOT = Path(__file__).resolve().parent.parent
+
+
+OUT = ROOT / "data" / "_model_probe.txt"
 URL = "https://text.pollinations.ai/openai"
 
 SYSTEM = (

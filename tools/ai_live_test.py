@@ -7,7 +7,11 @@ import time
 import urllib.request
 from pathlib import Path
 
-PORT_FILE = Path(r"D:\AI\xmu_hub\data\_runtime_port.txt")
+# --- 仓库根目录，随 clone 位置自适应（原来这里写死了 D:\AI\xmu_hub）---
+ROOT = Path(__file__).resolve().parent.parent
+
+
+PORT_FILE = ROOT / "data" / "_runtime_port.txt"
 
 
 def runtime_port() -> int:
@@ -18,7 +22,7 @@ def runtime_port() -> int:
 
 
 BASE = "http://127.0.0.1:" + str(runtime_port())
-OUT = Path(r"D:\AI\xmu_hub\data\_ai_live.txt")
+OUT = ROOT / "data" / "_ai_live.txt"
 
 
 def call(path: str, payload: dict | None = None, timeout: int = 120):

@@ -6,8 +6,12 @@ import json
 from collections import Counter
 from pathlib import Path
 
-DATA = Path(r"D:\AI\xmu_hub\data\portal.json")
-OUT = Path(r"D:\AI\xmu_hub\data\_inspect.txt")
+# --- 仓库根目录，随 clone 位置自适应（原来这里写死了 D:\AI\xmu_hub）---
+ROOT = Path(__file__).resolve().parent.parent
+
+
+DATA = ROOT / "data" / "portal.json"
+OUT = ROOT / "data" / "_inspect.txt"
 
 items = json.loads(DATA.read_text(encoding="utf-8"))["items"]
 lines: list[str] = []

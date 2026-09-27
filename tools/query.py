@@ -9,9 +9,14 @@ import json
 import sys
 from pathlib import Path
 
+
 sys.stdout.reconfigure(encoding="utf-8")
 
-DATA = Path(r"D:\AI\xmu_hub\data\portal.json")
+# --- 仓库根目录，随 clone 位置自适应（原来这里写死了 D:\AI\xmu_hub）---
+ROOT = Path(__file__).resolve().parent.parent
+
+
+DATA = ROOT / "data" / "portal.json"
 
 
 def main() -> None:
