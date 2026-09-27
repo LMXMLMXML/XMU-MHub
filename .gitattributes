@@ -1,0 +1,31 @@
+# 换行策略
+#
+# 背景：这台机器上 core.autocrlf=true，检出时 LF 会变 CRLF。
+# 但 GitHub Actions 的 workflow 文件如果带 CRLF，YAML 解析器可能直接拒绝，
+# 表现为"推上去了但 Actions 里看不到这个 workflow"——很难排查。
+# 所以这里显式固定，不依赖 core.autocrlf 的全局设置。
+
+# 默认：仓库里一律存 LF，工作区按平台决定
+* text=auto
+
+# 批处理必须 CRLF：cmd.exe 对 LF-only 的 .bat 解析会出问题
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Actions workflow 必须 LF
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# 这些是二进制，别做任何换行转换
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.zip binary
+*.exe binary
+*.dll binary
+*.pyd binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
