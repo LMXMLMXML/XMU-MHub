@@ -9,13 +9,21 @@
 
 ---
 
-## ⬇️ 下载 Windows 版（不需要装 Python）
+## 两种用法，任选（同一份软件、同一份数据）
 
-> ### 👉 [**点这里下载最新版**](https://github.com/LMXMLMXML/XMU-MHub/releases/latest)
->
-> 打开后点 Assets 下面的 **`XMU-Hub-vX.Y.Z-windows.zip`**（约 9 MB）。
->
-> **下载完三步就能用：**
+| | **Windows 桌面版** | **网页版（手机 / 电脑都能开）** |
+|---|---|---|
+| 地址 | [**⬇️ 点这里下载最新版**](https://github.com/LMXMLMXML/XMU-MHub/releases/latest) | 👉 **<https://whimsical-melomakarona-c3866a.netlify.app/>** |
+| 要装东西吗 | 免安装，解压双击就能跑 | **什么都不用装，浏览器打开即用** |
+| 适合 | 固定在电脑上用 | 手机上随手查 / 换台电脑临时用 |
+
+> **网页版就是这套软件本身**——同一份前端、同一份 320 条数据，功能一致。
+> 手机上打开后点「添加到主屏幕」，之后点图标就能像 App 一样全屏使用，**断网也能翻目录**。
+
+### ⬇️ Windows 桌面版怎么装
+
+> 打开[下载页](https://github.com/LMXMLMXML/XMU-MHub/releases/latest)，点 Assets 下面的
+> **`XMU-Hub-vX.Y.Z-windows.zip`**（约 9 MB），然后三步：
 >
 > 1. 解压 zip（右键 → 全部解压缩）
 > 2. 进解压出来的文件夹，双击 **`厦大统一门户-绿色版.exe`**
@@ -24,9 +32,6 @@
 > ✅ 免安装、不写注册表、不需要管理员权限
 > ✅ 收藏 / 最近打开 / 搜索记录存在同目录 `data\userdata.json`，删掉整个文件夹就是卸载
 > ⚠️ 被拦截的原因是 exe 没有代码签名证书（签名要花钱），不是文件有问题
-
-> **不想下载？手机/电脑都能直接开网页版** —— 见[手机端 / PWA](#手机端--pwa同一份前端静态托管就能用)。
-> 同一份前端、同一份数据，浏览器打开即用，不用装任何东西。
 
 ---
 
@@ -287,6 +292,17 @@ python tools/check_browser_focus.py --open     # 真开一个标签页做端到�
 
 ## 手机端 / PWA（同一份前端，静态托管就能用）
 
+### 线上地址
+
+**<https://whimsical-melomakarona-c3866a.netlify.app/>**（Netlify，https）
+
+手机浏览器打开后点「添加到主屏幕」，之后点主屏图标就像 App 一样全屏打开，断网也能翻目录。
+电脑浏览器打开也是同一套界面，不用下载任何东西。
+
+> 这个地址的唯一来源是 `app.py` 顶部的 `MOBILE_SITE` 常量——桌面版首页那条
+> 「📱 手机上也能用」用的就是它，改地址只改这一行（或 `--mobile-url` 临时覆盖）。
+> 部署方式见 [DEPLOY.md](DEPLOY.md)。
+
 ### 为什么不用重写
 
 量过一遍代码才发现，这个软件**本来就该是纯前端的**：搜索、筛选、排序、同义词扩展全在
@@ -402,13 +418,16 @@ python tools/build_mobile.py                      # 产出 dist-mobile/（约 1 
 python tools/deploy_check.py https://你的网址/     # 上线后一条命令验收
 ```
 
-三条路线（逐步照做见 **[DEPLOY.md](DEPLOY.md)**）：
+三条路线（逐步照做见 **[DEPLOY.md](DEPLOY.md)**）。**目前线上用的是路线 B（Netlify）**：
 
 | 路线 | 操作 | 网址长什么样 |
 |---|---|---|
 | **Cloudflare Pages**（推荐） | 注册 → Workers & Pages → Create → Pages → Upload assets → 把 `dist-mobile` 文件夹整个拖进去 | `https://xmu-hub.pages.dev` |
-| **Netlify Drop**（最省事） | 打开 <https://app.netlify.com/drop>，把文件夹拖进去 | `https://随机名.netlify.app` |
+| **Netlify Drop**（最省事，**现用这条**） | 打开 <https://app.netlify.com/drop>，把文件夹拖进去 | `https://随机名.netlify.app` |
 | **GitHub Pages** | `dist-mobile` 里 `git init` → 推到仓库 → Settings → Pages 选 main/root | `https://用户名.github.io/仓库名/` |
+
+> 当前线上地址：**<https://whimsical-melomakarona-c3866a.netlify.app/>**
+> （`app.py` 的 `MOBILE_SITE` 就是它；改地址记得两处一起改，或只改 `MOBILE_SITE`）
 
 `build_mobile.py` 已经把托管平台要用的零碎文件一起写好了：`_headers`（缓存策略：
 `portal.json` 不缓存、`assets/*` 缓存一周）、`robots.txt`、`.nojekyll`（GitHub Pages 不走 Jekyll）。
